@@ -1,0 +1,130 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPHostNamespace
+metadata:
+  name: psp-host-namespace
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPHostNetworkingPorts
+metadata:
+  name: psp-host-network-ports
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+  parameters:
+    hostNetwork: false
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPPrivilegedContainer
+metadata:
+  name: psp-privileged-container
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPCapabilities
+metadata:
+  name: restricted-capabilities
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaceSelector:
+      matchExpressions:
+        - operator: NotIn
+          key: security 
+          values: ["anyuid"] 
+  parameters:
+    requiredDropCapabilities: ["KILL","MKNOD","SYS_CHROOT"]
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPCapabilities
+metadata:
+  name: anyuid-capabilities
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaceSelector:
+      matchExpressions:
+        - operator: In
+          key: security 
+          values: ["anyuid"]
+  parameters:
+    requiredDropCapabilities: ["MKNOD"]
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPAllowedUsers
+metadata:
+  name: restricted-users-and-groups
+spec:
+  match:  
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaceSelector:
+      matchExpressions:
+        - operator: NotIn
+          key: security 
+          values: ["anyuid","nonroot"] 
+  parameters:
+    runAsUser:
+      rule: MustRunAs # MustRunAsNonRoot # RunAsAny 
+      ranges:
+        - min: 1000
+          max: 2000
+    fsGroup:
+      rule: MustRunAs # MayRunAs # RunAsAny 
+      ranges:
+        - min: 1000
+          max: 2000
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPAllowedUsers
+metadata:
+  name: nonroot-users-and-groups
+spec:
+  match:  
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaceSelector:
+      matchExpressions:
+        - operator: In
+          key: security 
+          values: ["nonroot"] 
+  parameters:
+    runAsUser:
+      rule: MustRunAsNonRoot # MustRunAs # MustRunAsNonRoot # RunAsAny 
+    fsGroup:
+      rule: MustRunAsNonRoot # MustRunAs # MustRunAsNonRoot # RunAsAny 
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPVolumeTypes
+metadata:
+  name: psp-volume-types
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+  parameters:
+    volumes:
+      - configMap
+      - downwardAPI
+      - emptyDir
+      - nfs
+      - persistentVolumeClaim
+      - projected
+      - secret
