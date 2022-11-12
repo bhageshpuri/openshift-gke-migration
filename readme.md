@@ -123,7 +123,7 @@ If you don’t do that, system Pods and, consequently, your entire cluster, can 
 
 * [Migrate Images from OpenShift Internal Registry](./10.TransferApplicationImages.md), if required. This is needed only if the application images are stored in OpenShift Internal Registry. 
 
-* [Migration Application Workloads](./11.MigrateApplications.md) to the target cluster. This uses [Shifter tool](https://github.com/garybowers/shifter) that converts OpenShift manifests to kubernetes manifests. While all the above steps are handled for the entire cluster, we recommend migrating application workloads one namespace at a time. 
+* [Migration Application Workloads](./11.MigrateApplications.md) to the target cluster. This uses [Shifter tool](https://github.com/google/shifter) that converts OpenShift manifests to kubernetes manifests. While all the above steps are handled for the entire cluster, we recommend migrating application workloads one namespace at a time. 
 
 ## Migrate Persistent Data
 [Migration Application Workloads with Persistent Data](./12.MigrateApplications_with_PersistentData.md) could assist users to migrate Openshift workloads and persistent data to GKE/Anthos cluster. This flow follows the flow from [Migration Application Workloads](./11.MigrateApplications.md) but add an opensource tool, [Velero](https://velero.io), to include persistent data migration. To conduct this migration, an object storage (e.g. Google Cloud Storage(GCS)) is required to keep the persistent data before restoring to the target cluster.
